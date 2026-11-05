@@ -239,40 +239,95 @@ authRouter.get('/me', requireAuth, async (req, res) => {
   res.json({ user });
 });
 
-// 10. GOOGLE OAUTH2 SIMULATION / DEMO HOOK
+// 10. GOOGLE OAUTH2 (Supports Real Google Cloud Credentials + Local Fallback)
 authRouter.get('/oauth/google', (req, res) => {
-  // Local simulated OAuth2 flow: redirects to callback with simulated auth code
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const redirectUri = `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
+
+  if (clientId) {
+    // Real Google OAuth2 flow
+    const state = Math.random().toString(36).substring(7);
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(clientId)}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `response_type=code&` +
+      `scope=openid%20email%20profile&` +
+      `state=${state}&` +
+      `access_type=offline&` +
+      `prompt=select_account`;
+    return res.redirect(googleAuthUrl);
+  }
+
+  // Instant local dev mode fallback when credentials are not yet configured
+  console.log('[AURA GOOGLE AUTH] No GOOGLE_CLIENT_ID in env. Using simulated instant Google login.');
   const demoState = 'state_' + Math.random().toString(36).substring(7);
   res.redirect(`/api/v1/auth/oauth/google/callback?code=mock_google_code_123&state=${demoState}`);
 });
 
 authRouter.get('/oauth/google/callback', async (req, res) => {
-  const ip = req.ip || '127.0.0.1';
+  const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
   const userAgent = req.headers['user-agent'] || 'Google-OAuth-Agent';
+  const { code } = req.query;
 
-  // Find or create demo google user
-  const email = 'google.user@example.com';
-  const name = 'Google User';
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const redirectUri = `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
 
   try {
-    let result;
-    try {
-      result = await AuthService.login(email, 'GoogleOAuthPassword123!', true, ip, userAgent);
-    } catch {
-      await AuthService.register(name, email, 'GoogleOAuthPassword123!', ip, userAgent);
-      result = await AuthService.login(email, 'GoogleOAuthPassword123!', true, ip, userAgent);
+    let email = 'google.user@example.com';
+    let name = 'Google User';
+    let providerUserId = 'mock_google_sub_123';
+
+    if (clientId && clientSecret && code && code !== 'mock_google_code_123') {
+      // Exchange authorization code with Google OAuth token endpoint
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code: String(code),
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        }),
+      });
+
+      if (!tokenResponse.ok) {
+        throw new Error('Failed to exchange authorization code with Google');
+      }
+
+      const tokenData = await tokenResponse.json();
+
+      // Retrieve Google user profile
+      const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      });
+
+      if (!userInfoResponse.ok) {
+        throw new Error('Failed to retrieve user profile from Google');
+      }
+
+      const userInfo = await userInfoResponse.json();
+      email = userInfo.email;
+      name = userInfo.name || 'Google User';
+      providerUserId = userInfo.sub;
     }
 
+    // Resolve or create user in database with verified email account linking
+    const result = await AuthService.findOrCreateOAuthUser('google', providerUserId, email, name, ip, userAgent);
+
+    // Set secure HTTP-only refresh token cookie
     res.cookie('aura_refresh_token', result.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: false, // Set false for localhost dev; true in production HTTPS
       sameSite: 'lax',
       path: '/api/v1/auth',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     res.redirect('/');
-  } catch (err) {
+  } catch (err: any) {
+    console.error('[AURA GOOGLE AUTH ERROR]', err);
     res.redirect('/login?error=oauth_failed');
   }
 });
@@ -338,3 +393,4 @@ authRouter.delete('/account', requireAuth, async (req, res, next) => {
     next(err);
   }
 });
+

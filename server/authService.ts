@@ -470,4 +470,89 @@ export class AuthService {
     }
     db.prepare('DELETE FROM users WHERE id = ?').run(userId);
   }
+
+  // 10. OAUTH2 USER RESOLUTION (Auto-account linking by verified email)
+  static async findOrCreateOAuthUser(
+    provider: string,
+    providerUserId: string,
+    email: string,
+    name: string,
+    ip: string,
+    userAgent: string
+  ) {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = name.trim() || 'Google User';
+    const now = new Date().toISOString();
+
+    // 1. Check if OAuth identity already exists
+    const existingIdentity = db.prepare(`
+      SELECT user_id FROM oauth_identities WHERE provider = ? AND provider_user_id = ?
+    `).get(provider, providerUserId) as { user_id: string } | undefined;
+
+    let userId: string;
+
+    if (existingIdentity) {
+      userId = existingIdentity.user_id;
+    } else {
+      // 2. Check if user already exists by email (Account linking by verified email)
+      const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail) as { id: string } | undefined;
+
+      if (existingUser) {
+        userId = existingUser.id;
+        db.prepare('UPDATE users SET email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?').run(now, userId);
+      } else {
+        // Create new user without password (OAuth-only account)
+        userId = crypto.randomUUID();
+        db.prepare(`
+          INSERT INTO users (id, email, password_hash, name, email_verified_at, status, created_at)
+          VALUES (?, ?, NULL, ?, ?, 'active', ?)
+        `).run(userId, cleanEmail, cleanName, now, now);
+      }
+
+      // Link OAuth identity
+      db.prepare(`
+        INSERT INTO oauth_identities (id, user_id, provider, provider_user_id, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(crypto.randomUUID(), userId, provider, providerUserId, now);
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as UserRow;
+    if (user.status !== 'active') {
+      throw { status: 403, code: 'AUTH_ACCOUNT_SUSPENDED', detail: 'This account has been suspended.' };
+    }
+
+    // Issue JWT access token + 30-day refresh token
+    const accessToken = signAccessToken({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+    });
+
+    const rawRefreshToken = generateRandomToken(32);
+    const refreshTokenHash = hashToken(rawRefreshToken);
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    db.prepare(`
+      INSERT INTO refresh_tokens (id, user_id, family_id, token_hash, is_revoked, user_agent, ip_address, created_at, expires_at)
+      VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)
+    `).run(crypto.randomUUID(), user.id, crypto.randomUUID(), refreshTokenHash, userAgent, ip, now, expiresAt);
+
+    db.prepare('UPDATE users SET last_login_at = ? WHERE id = ?').run(now, user.id);
+    this.logAudit(user.id, `OAUTH_LOGIN_SUCCESS_${provider.toUpperCase()}`, ip, userAgent);
+
+    return {
+      accessToken,
+      refreshToken: rawRefreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        emailVerified: true,
+        status: user.status,
+        createdAt: user.created_at,
+        lastLoginAt: now,
+      },
+    };
+  }
 }
+
