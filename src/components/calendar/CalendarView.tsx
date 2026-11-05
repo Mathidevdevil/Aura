@@ -40,7 +40,7 @@ export const CalendarView: React.FC = () => {
   const getDayItems = (dayNum: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
-    const dayProcesses = processes.filter(p => p.startDate === dateStr || p.deadline.startsWith(dateStr));
+    const dayProcesses = processes.filter(p => p.startDate === dateStr || (p.deadline || '').startsWith(dateStr));
     const dayMilestones = milestones.filter(m => m.deadline === dateStr);
     const dayGoalTargets = goals.filter(g => g.targetDate === dateStr);
 
@@ -54,7 +54,7 @@ export const CalendarView: React.FC = () => {
   };
 
   const selectedDayData = React.useMemo(() => {
-    const dayProcesses = processes.filter(p => p.startDate === selectedDayStr || p.deadline.startsWith(selectedDayStr));
+    const dayProcesses = processes.filter(p => p.startDate === selectedDayStr || (p.deadline || '').startsWith(selectedDayStr));
     const dayMilestones = milestones.filter(m => m.deadline === selectedDayStr);
     const dayGoalTargets = goals.filter(g => g.targetDate === selectedDayStr);
 

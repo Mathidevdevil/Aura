@@ -21,6 +21,7 @@ import {
 } from '../services/storage';
 import { AIEngine, NLCommandResult } from '../services/aiEngine';
 import confetti from 'canvas-confetti';
+import { useAuth } from './AuthContext';
 
 export type NavigationTab = 
   | 'dashboard' 
@@ -137,9 +138,17 @@ export const TrackerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
 
   // User Profile & Onboarding states
+  const { user } = useAuth();
   const [userName, setUserNameState] = useState<string>(() => {
-    return StorageService.getUserName() || 'Mathi';
+    return user?.name || StorageService.getUserName() || 'Mathi';
   });
+
+  useEffect(() => {
+    if (user?.name) {
+      setUserNameState(user.name);
+      StorageService.saveUserName(user.name);
+    }
+  }, [user?.name]);
 
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
     return !StorageService.hasOnboarded();

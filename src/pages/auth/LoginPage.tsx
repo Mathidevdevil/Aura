@@ -200,6 +200,27 @@ export const LoginPage: React.FC = () => {
           <span className="font-semibold">{authCopy.login.googleButton}</span>
         </button>
 
+        {/* Quick Demo Login (Instant Access) */}
+        <button
+          type="button"
+          onClick={async () => {
+            setEmail('demo@aura.local');
+            setPassword('AuraPlanner2026!');
+            setIsLoading(true);
+            try {
+              await login('demo@aura.local', 'AuraPlanner2026!', false);
+              navigate('/', { replace: true });
+            } catch (err: any) {
+              setErrorBanner(err.detail || 'Demo sign-in failed.');
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          className="planner-btn btn-secondary w-full py-2.5 text-xs text-[var(--tomato-ink)] font-bold flex items-center justify-center gap-2 border-dashed border-2 border-[var(--tomato)] hover:bg-[var(--tomato)]/10"
+        >
+          <span>⚡ One-Click Sign In (Demo User: Mathi)</span>
+        </button>
+
         {/* Footer Link */}
         <div className="text-center pt-2 text-xs text-[var(--muted)]">
           <span>{authCopy.login.noAccount} </span>

@@ -72,5 +72,20 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_refresh_family ON refresh_tokens(family_id);
     CREATE INDEX IF NOT EXISTS idx_email_token_hash ON email_tokens(token_hash);
   `);
-}
 
+  // Seed default demo user for seamless local testing
+  const demoUser = db.prepare('SELECT id FROM users WHERE email = ?').get('demo@aura.local');
+  if (!demoUser) {
+    db.prepare(`
+      INSERT INTO users (id, email, password_hash, name, status, email_verified_at, created_at)
+      VALUES (?, ?, ?, ?, 'active', ?, ?)
+    `).run(
+      'user-demo-seed-001',
+      'demo@aura.local',
+      '$argon2id$v=19$m=65536,t=3,p=1$NcqgIHf2JQFBSiEI/F4bQw$Og8MeYFU4knIFpHyYRhrzfA92LWlLzDwLnT47hja1ko',
+      'Mathi',
+      new Date().toISOString(),
+      new Date().toISOString()
+    );
+  }
+}

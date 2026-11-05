@@ -124,7 +124,7 @@ export const AIEngine = {
    */
   generateDailySummary(processes: Process[], goals: Goal[], milestones: Milestone[]): AIDailySummary {
     const today = getTodayDateString();
-    const todayProcesses = processes.filter(p => p.startDate === today || p.deadline.startsWith(today));
+    const todayProcesses = processes.filter(p => p.startDate === today || (p.deadline || '').startsWith(today));
     const targetPool = todayProcesses.length > 0 ? todayProcesses : processes;
 
     const completed = targetPool.filter(p => p.status === 'Completed');
@@ -718,7 +718,7 @@ export const AIEngine = {
     });
 
     // Check processes due today that are not completed
-    processes.filter(p => p.deadline.startsWith(today) && p.status !== 'Completed' && p.status !== 'Overdue').forEach(p => {
+    processes.filter(p => (p.deadline || '').startsWith(today) && p.status !== 'Completed' && p.status !== 'Overdue').forEach(p => {
       reminders.push({
         id: `rem-due-today-${p.id}`,
         title: 'Due Today',

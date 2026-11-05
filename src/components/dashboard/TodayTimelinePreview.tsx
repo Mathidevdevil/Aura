@@ -14,7 +14,7 @@ export const TodayTimelinePreview: React.FC = () => {
 
   const todayStr = new Date().toISOString().split('T')[0];
   const todayProcesses = processes
-    .filter(p => p.startDate === todayStr || p.deadline.startsWith(todayStr))
+    .filter(p => p.startDate === todayStr || (p.deadline || '').startsWith(todayStr))
     .sort((a, b) => (a.scheduledTime || '09:00').localeCompare(b.scheduledTime || '09:00'));
 
   const handleToggle = (id: string, currentStatus: string) => {

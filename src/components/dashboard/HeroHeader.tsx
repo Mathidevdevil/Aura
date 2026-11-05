@@ -23,7 +23,7 @@ export const HeroHeader: React.FC = () => {
   const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   const todayStr = now.toISOString().split('T')[0];
-  const todayProcesses = processes.filter(p => p.startDate === todayStr || p.deadline.startsWith(todayStr));
+  const todayProcesses = processes.filter(p => p.startDate === todayStr || (p.deadline || '').startsWith(todayStr));
   const completedToday = todayProcesses.filter(p => p.status === 'Completed').length;
   const remainingToday = todayProcesses.length - completedToday;
 
