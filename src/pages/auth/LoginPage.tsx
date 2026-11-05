@@ -74,7 +74,8 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = '/api/v1/auth/oauth/google';
+    const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '') || '/api/v1';
+    window.location.href = `${apiBase}/auth/oauth/google`;
   };
 
   return (

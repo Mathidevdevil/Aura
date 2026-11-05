@@ -21,9 +21,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS Configuration with credentials
+// CORS Configuration with credentials (supports localhost + Vercel deployment URLs)
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: (origin, callback) => {
+    if (
+      !origin || 
+      origin.includes('localhost') || 
+      origin.includes('127.0.0.1') || 
+      origin.endsWith('.vercel.app') ||
+      (process.env.CLIENT_URL && origin === process.env.CLIENT_URL)
+    ) {
+      return callback(null, true);
+    }
+    callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],

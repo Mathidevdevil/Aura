@@ -52,11 +52,14 @@ export function setOnUnauthorized(cb: () => void) {
   onUnauthorizedCallback = cb;
 }
 
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '') || '/api/v1';
+
 export async function request<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = endpoint.startsWith('http') ? endpoint : `/api/v1${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${cleanEndpoint}`;
   
   const headers = new Headers(options.headers || {});
   headers.set('Accept', 'application/json');
@@ -104,7 +107,7 @@ export async function request<T = any>(
     isRefreshing = true;
 
     try {
-      const refreshRes = await fetch('/api/v1/auth/refresh', {
+      const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
         method: 'POST',
         headers: { 'Accept': 'application/json' },
         credentials: 'include',
