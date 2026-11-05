@@ -41,7 +41,8 @@ describe('Phase 2 & 4: Backend Auth Security & Lifecycle', () => {
     ).rejects.toMatchObject({ status: 400, code: 'AUTH_COMMON_PASSWORD' });
   });
 
-  it('registers user and dispatches single-use verification token', async () => {
+  it('registers user and dispatches single-use verification token when required', async () => {
+    process.env.REQUIRE_EMAIL_VERIFICATION = 'true';
     const regResult = await AuthService.register('Test User', testEmail, testPassword, '127.0.0.1', 'Vitest');
     expect(regResult.user.email).toBe(testEmail);
     expect(regResult.emailVerificationRequired).toBe(true);
@@ -49,6 +50,17 @@ describe('Phase 2 & 4: Backend Auth Security & Lifecycle', () => {
     // Verify token exists in database
     const tokenRecord = db.prepare("SELECT * FROM email_tokens WHERE user_id = ? AND type = 'verify'").get(regResult.user.id);
     expect(tokenRecord).toBeDefined();
+    delete process.env.REQUIRE_EMAIL_VERIFICATION;
+  });
+
+  it('registers user and auto-logs in with tokens when email verification is disabled', async () => {
+    delete process.env.REQUIRE_EMAIL_VERIFICATION;
+    const autoEmail = `auto_${Date.now()}@example.com`;
+    const regResult = await AuthService.register('Auto User', autoEmail, 'AutoPassword123!', '127.0.0.1', 'Vitest');
+    expect(regResult.user.email).toBe(autoEmail);
+    expect(regResult.emailVerificationRequired).toBe(false);
+    expect(regResult.accessToken).toBeDefined();
+    expect(regResult.refreshToken).toBeDefined();
   });
 
   it('enforces anti-enumeration on login failures', async () => {

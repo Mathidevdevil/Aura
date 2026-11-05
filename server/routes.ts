@@ -74,6 +74,11 @@ authRouter.post('/register', registerLimiter, async (req, res, next) => {
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
     const result = await AuthService.register(name, email, password, ip, userAgent);
+
+    if (result.refreshToken) {
+      res.cookie('aura_refresh_token', result.refreshToken, getCookieOptions(req, 30 * 24 * 60 * 60 * 1000));
+    }
+
     res.status(201).json(result);
   } catch (err) {
     next(err);

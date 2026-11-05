@@ -4,7 +4,7 @@ import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
 export interface BannerProps {
   type: 'error' | 'success' | 'info';
   title?: string;
-  message: string;
+  message: string | React.ReactNode;
   onDismiss?: () => void;
   className?: string;
 }

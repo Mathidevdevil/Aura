@@ -63,41 +63,70 @@ export class AuthService {
     const userId = crypto.randomUUID();
     const pwdHash = await hashPassword(password);
     const now = new Date().toISOString();
+    const requireEmailVerification = process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
+    const verifiedAt = requireEmailVerification ? null : now;
 
     db.prepare(`
       INSERT INTO users (id, email, password_hash, name, email_verified_at, status, created_at)
-      VALUES (?, ?, ?, ?, NULL, 'active', ?)
-    `).run(userId, cleanEmail, pwdHash, cleanName, now);
-
-    // Create verification token (24h expiry)
-    const rawToken = generateRandomToken(32);
-    const tokenHash = hashToken(rawToken);
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-
-    db.prepare(`
-      INSERT INTO email_tokens (id, user_id, type, token_hash, expires_at, created_at)
-      VALUES (?, ?, 'verify', ?, ?, ?)
-    `).run(crypto.randomUUID(), userId, tokenHash, expiresAt, now);
+      VALUES (?, ?, ?, ?, ?, 'active', ?)
+    `).run(userId, cleanEmail, pwdHash, cleanName, verifiedAt, now);
 
     this.logAudit(userId, 'USER_REGISTERED', ip, userAgent);
 
-    // Dev Email Console Logger
-    console.log('\n======================================================');
-    console.log('✉️  [AURA DEV EMAIL SERVICE] Verification Email Sent:');
-    console.log(`To: ${cleanEmail}`);
-    console.log(`Link: http://localhost:3000/verify-email?token=${rawToken}`);
-    console.log('======================================================\n');
+    if (requireEmailVerification) {
+      // Create verification token (24h expiry)
+      const rawToken = generateRandomToken(32);
+      const tokenHash = hashToken(rawToken);
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+      db.prepare(`
+        INSERT INTO email_tokens (id, user_id, type, token_hash, expires_at, created_at)
+        VALUES (?, ?, 'verify', ?, ?, ?)
+      `).run(crypto.randomUUID(), userId, tokenHash, expiresAt, now);
+
+      return {
+        user: {
+          id: userId,
+          email: cleanEmail,
+          name: cleanName,
+          emailVerified: false,
+          status: 'active',
+          createdAt: now,
+        },
+        emailVerificationRequired: true,
+      };
+    }
+
+    // Auto-login: issue session tokens immediately for instant access
+    const accessToken = signAccessToken({
+      sub: userId,
+      email: cleanEmail,
+      name: cleanName,
+    });
+
+    const rawRefreshToken = generateRandomToken(32);
+    const refreshTokenHash = hashToken(rawRefreshToken);
+    const familyId = crypto.randomUUID();
+    const tokenId = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    db.prepare(`
+      INSERT INTO refresh_tokens (id, user_id, family_id, token_hash, is_revoked, user_agent, ip_address, created_at, expires_at)
+      VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)
+    `).run(tokenId, userId, familyId, refreshTokenHash, userAgent, ip, now, expiresAt);
 
     return {
       user: {
         id: userId,
         email: cleanEmail,
         name: cleanName,
-        emailVerified: false,
+        emailVerified: true,
         status: 'active',
         createdAt: now,
       },
-      emailVerificationRequired: true,
+      accessToken,
+      refreshToken: rawRefreshToken,
+      emailVerificationRequired: false,
     };
   }
 

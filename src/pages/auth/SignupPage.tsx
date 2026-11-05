@@ -18,7 +18,7 @@ export const SignupPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [errorBanner, setErrorBanner] = useState<React.ReactNode | null>(null);
   const [verificationPending, setVerificationPending] = useState(false);
 
   const [errors, setErrors] = useState<{
@@ -101,7 +101,18 @@ export const SignupPage: React.FC = () => {
         navigate('/', { replace: true });
       }
     } catch (err: any) {
-      setErrorBanner(err.detail || 'Failed to create account.');
+      if (err.code === 'AUTH_EMAIL_EXISTS') {
+        setErrorBanner(
+          <span>
+            An account with this email already exists.{' '}
+            <Link to="/login" className="underline font-bold text-[var(--tomato-ink)]">
+              Sign in here →
+            </Link>
+          </span>
+        );
+      } else {
+        setErrorBanner(err.detail || 'Failed to create account.');
+      }
       emailRef.current?.focus();
     } finally {
       setIsLoading(false);
