@@ -6,6 +6,27 @@ import { hashToken } from './crypto';
 
 export const authRouter = Router();
 
+function getCookieOptions(req: Request, maxAge?: number) {
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https' || process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: isSecure ? ('none' as const) : ('lax' as const),
+    path: '/api/v1/auth',
+    maxAge,
+  };
+}
+
+function getClearCookieOptions(req: Request) {
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https' || process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: isSecure ? ('none' as const) : ('lax' as const),
+    path: '/api/v1/auth',
+  };
+}
+
 // Middleware: Require Authenticated JWT
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
@@ -80,13 +101,7 @@ authRouter.post('/login', loginLimiter, async (req, res, next) => {
 
     // Set HTTP-Only Cookie
     const maxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : undefined;
-    res.cookie('aura_refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: false, // Set false for localhost dev; true in production with HTTPS
-      sameSite: 'lax',
-      path: '/api/v1/auth',
-      maxAge,
-    });
+    res.cookie('aura_refresh_token', result.refreshToken, getCookieOptions(req, maxAge));
 
     res.json({
       accessToken: result.accessToken,
@@ -117,13 +132,7 @@ authRouter.post('/refresh', async (req, res, next) => {
     const result = await AuthService.refresh(refreshToken, ip, userAgent);
 
     // Set rotated token in cookie
-    res.cookie('aura_refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/api/v1/auth',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('aura_refresh_token', result.refreshToken, getCookieOptions(req, 30 * 24 * 60 * 60 * 1000));
 
     res.json({
       accessToken: result.accessToken,
@@ -131,7 +140,7 @@ authRouter.post('/refresh', async (req, res, next) => {
     });
   } catch (err: any) {
     // If token family was revoked or invalid, clear cookie
-    res.clearCookie('aura_refresh_token', { path: '/api/v1/auth' });
+    res.clearCookie('aura_refresh_token', getClearCookieOptions(req));
     next(err);
   }
 });
@@ -144,7 +153,7 @@ authRouter.post('/logout', async (req, res, next) => {
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
     await AuthService.logout(refreshToken, ip, userAgent);
-    res.clearCookie('aura_refresh_token', { path: '/api/v1/auth' });
+    res.clearCookie('aura_refresh_token', getClearCookieOptions(req));
     res.status(204).end();
   } catch (err) {
     next(err);
@@ -202,13 +211,7 @@ authRouter.post('/verify-email', async (req, res, next) => {
 
     const result = await AuthService.verifyEmail(token, ip, userAgent);
 
-    res.cookie('aura_refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/api/v1/auth',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('aura_refresh_token', result.refreshToken, getCookieOptions(req, 30 * 24 * 60 * 60 * 1000));
 
     res.json({
       accessToken: result.accessToken,
@@ -242,7 +245,9 @@ authRouter.get('/me', requireAuth, async (req, res) => {
 // 10. GOOGLE OAUTH2 (Supports Real Google Cloud Credentials + Local Fallback)
 authRouter.get('/oauth/google', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
+  const forwardedHost = (req.headers['x-forwarded-host'] as string) || req.get('host');
+  const forwardedProto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${forwardedProto}://${forwardedHost}/api/v1/auth/oauth/google/callback`;
 
   if (clientId) {
     // Real Google OAuth2 flow
@@ -271,7 +276,9 @@ authRouter.get('/oauth/google/callback', async (req, res) => {
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
+  const forwardedHost = (req.headers['x-forwarded-host'] as string) || req.get('host');
+  const forwardedProto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${forwardedProto}://${forwardedHost}/api/v1/auth/oauth/google/callback`;
 
   try {
     let email = 'google.user@example.com';
@@ -317,18 +324,14 @@ authRouter.get('/oauth/google/callback', async (req, res) => {
     const result = await AuthService.findOrCreateOAuthUser('google', providerUserId, email, name, ip, userAgent);
 
     // Set secure HTTP-only refresh token cookie
-    res.cookie('aura_refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: false, // Set false for localhost dev; true in production HTTPS
-      sameSite: 'lax',
-      path: '/api/v1/auth',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('aura_refresh_token', result.refreshToken, getCookieOptions(req, 30 * 24 * 60 * 60 * 1000));
 
-    res.redirect('/');
+    const clientUrl = process.env.CLIENT_URL || (forwardedHost?.includes('render.com') ? 'https://auratracker-app.vercel.app' : '/');
+    res.redirect(clientUrl);
   } catch (err: any) {
     console.error('[AURA GOOGLE AUTH ERROR]', err);
-    res.redirect('/login?error=oauth_failed');
+    const clientUrl = process.env.CLIENT_URL || (req.get('host')?.includes('render.com') ? 'https://auratracker-app.vercel.app' : '');
+    res.redirect(`${clientUrl}/login?error=oauth_failed`);
   }
 });
 

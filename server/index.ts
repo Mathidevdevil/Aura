@@ -8,6 +8,9 @@ import { authRouter } from './routes';
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Trust reverse proxies (Render, Vercel, Cloudflare)
+app.set('trust proxy', 1);
+
 // Initialize database schema
 initDatabase();
 
