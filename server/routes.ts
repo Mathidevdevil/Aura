@@ -242,7 +242,7 @@ authRouter.get('/me', requireAuth, async (req, res) => {
 // 10. GOOGLE OAUTH2 (Supports Real Google Cloud Credentials + Local Fallback)
 authRouter.get('/oauth/google', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
 
   if (clientId) {
     // Real Google OAuth2 flow
@@ -271,7 +271,7 @@ authRouter.get('/oauth/google/callback', async (req, res) => {
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/v1/auth/oauth/google/callback`;
 
   try {
     let email = 'google.user@example.com';

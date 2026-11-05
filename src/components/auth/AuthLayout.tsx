@@ -152,3 +152,4 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
     </div>
   );
 };
+

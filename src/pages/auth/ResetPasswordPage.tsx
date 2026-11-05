@@ -229,3 +229,4 @@ export const ResetPasswordPage: React.FC = () => {
     </AuthLayout>
   );
 };
+

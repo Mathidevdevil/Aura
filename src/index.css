@@ -1,0 +1,248 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  [data-theme="light"],
+  .light {
+    --paper: #f4ecdc;
+    --card: #fffaf0;
+    --ink: #221d16;
+    --muted: #61584a;
+    --faint: #8f8472;
+    --rule: #d9ceb7;
+    --dot: #d8ccb2;
+    --tomato: #d9441f;
+    --tomato-ink: #b5351a;
+    --green: #2f7a4d;
+    --blue: #2c5aa0;
+    --marker: #ffd75a;
+    --sticky: #ffe58a;
+    --btn-tomato-text: #ffffff;
+    --hatch-tomato-tint: rgba(217, 68, 31, 0.45);
+    --hatch-blue-tint: rgba(44, 90, 160, 0.45);
+    --hatch-green-tint: rgba(47, 122, 77, 0.45);
+  }
+
+  [data-theme="night"],
+  .dark {
+    --paper: #1a1712;
+    --card: #25211a;
+    --ink: #f1e8d4;
+    --muted: #bdb29b;
+    --faint: #8a8068;
+    --rule: #3a342a;
+    --dot: #2c271e;
+    --tomato: #ff7a52;
+    --tomato-ink: #ff8f6c;
+    --green: #6fcf94;
+    --blue: #8db4f0;
+    --marker: #6b5a12;
+    --sticky: #4a3f12;
+    --btn-tomato-text: #1a1712;
+    --hatch-tomato-tint: rgba(255, 122, 82, 0.45);
+    --hatch-blue-tint: rgba(141, 180, 240, 0.45);
+    --hatch-green-tint: rgba(111, 207, 148, 0.45);
+  }
+
+  body {
+    background-color: var(--paper);
+    background-image: radial-gradient(var(--dot) 1.1px, transparent 1.2px);
+    background-size: 24px 24px;
+    color: var(--ink);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Accessible focus indicators */
+  :focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
+  }
+}
+
+/* Tabular figures for aligned numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Paper Planner Card Style */
+.planner-card {
+  background-color: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* Planner Button Style */
+.planner-btn {
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+  user-select: none;
+}
+
+.planner-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.planner-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* Primary Button (Tomato) */
+.btn-primary {
+  background-color: var(--tomato);
+  color: var(--btn-tomato-text);
+  padding: 8px 16px;
+}
+
+/* Secondary Button (Ink Outline) */
+.btn-secondary {
+  background-color: var(--card);
+  color: var(--ink);
+  padding: 8px 16px;
+}
+
+/* Icon Button (Square) */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--card);
+  color: var(--ink);
+  padding: 0;
+}
+
+/* Hatched Progress Bar */
+.hatched-track {
+  height: 14px;
+  background-color: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hatched-fill-tomato {
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--tomato) 0 6px,
+    var(--hatch-tomato-tint) 6px 12px
+  );
+  border-right: 2px solid var(--ink);
+  transition: width 300ms ease-out;
+}
+
+.hatched-fill-blue {
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--blue) 0 6px,
+    var(--hatch-blue-tint) 6px 12px
+  );
+  border-right: 2px solid var(--ink);
+  transition: width 300ms ease-out;
+}
+
+.hatched-fill-green {
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--green) 0 6px,
+    var(--hatch-green-tint) 6px 12px
+  );
+  border-right: 2px solid var(--ink);
+  transition: width 300ms ease-out;
+}
+
+/* Active Nav Marker Highlighter Effect */
+.nav-active-marker {
+  position: relative;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.nav-active-marker::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 0px;
+  height: 48%;
+  background-color: var(--marker);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Custom Checkbox */
+.planner-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  background-color: var(--card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.task-completed-label {
+  text-decoration: line-through;
+  text-decoration-color: var(--tomato);
+  text-decoration-thickness: 2.5px;
+  color: var(--faint);
+}
+
+/* Goal Tag Pill */
+.goal-pill {
+  border: 1.5px solid var(--ink);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background-color: var(--paper);
+  white-space: nowrap;
+}
+
+/* Sticky Note Style */
+.sticky-note {
+  background-color: var(--sticky);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--ink);
+  transform: rotate(-1.2deg);
+}
+
+/* Respect Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .planner-btn:hover,
+  .planner-btn:active {
+    transform: none !important;
+  }
+}

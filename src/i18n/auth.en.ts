@@ -129,3 +129,4 @@ export const authCopy = {
     deleteButton: 'Permanently delete account',
   }
 };
+

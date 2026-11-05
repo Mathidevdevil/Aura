@@ -73,3 +73,4 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_email_token_hash ON email_tokens(token_hash);
   `);
 }
+

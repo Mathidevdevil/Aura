@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -68,3 +69,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
+
