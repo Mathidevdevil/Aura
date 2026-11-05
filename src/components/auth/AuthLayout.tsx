@@ -16,8 +16,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
     <div className="min-h-screen w-full flex flex-col bg-[var(--paper)] text-[var(--ink)]">
       
       {/* Top Header Row */}
-      <header className="w-full flex items-center justify-between py-4 px-6 md:px-12 border-b-2 border-[var(--ink)] bg-[var(--paper)]">
-        <div className="flex items-center gap-1.5 font-fraunces italic font-semibold text-3xl text-[var(--ink)] leading-none select-none">
+      <header className="w-full flex items-center justify-between py-3 px-4 sm:px-6 md:px-12 border-b-2 border-[var(--ink)] bg-[var(--paper)]">
+        <div className="flex items-center gap-1.5 font-fraunces italic font-semibold text-2xl sm:text-3xl text-[var(--ink)] leading-none select-none">
           <span>{authCopy.common.appName}</span>
           <span className="text-[var(--tomato)] text-2xl not-italic font-bold">✱</span>
         </div>
@@ -120,17 +120,17 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
         {/* Right: Auth Form Container */}
         <section 
           aria-label={title}
-          className="flex-1 flex flex-col justify-center p-6 sm:p-12 lg:p-16 max-w-xl mx-auto w-full"
+          className="flex-1 flex flex-col justify-center p-3.5 sm:p-8 lg:p-16 max-w-xl mx-auto w-full"
         >
-          <div className="planner-card p-6 sm:p-10 bg-[var(--card)] border-2 border-[var(--ink)] rounded-[14px] shadow-[6px_6px_0_var(--ink)] space-y-6">
+          <div className="planner-card p-4 sm:p-8 lg:p-10 bg-[var(--card)] border-2 border-[var(--ink)] rounded-[14px] shadow-[3px_3px_0_var(--ink)] sm:shadow-[6px_6px_0_var(--ink)] space-y-5 sm:space-y-6">
             
             {/* Header */}
             <div>
-              <h1 className="font-fraunces font-semibold text-[32px] sm:text-[36px] text-[var(--ink)] tracking-tight leading-tight">
+              <h1 className="font-fraunces font-semibold text-[26px] sm:text-[36px] text-[var(--ink)] tracking-tight leading-tight">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-[14px] text-[var(--muted)] mt-1.5 leading-relaxed">
+                <p className="text-[13px] sm:text-[14px] text-[var(--muted)] mt-1 sm:mt-1.5 leading-relaxed">
                   {subtitle}
                 </p>
               )}

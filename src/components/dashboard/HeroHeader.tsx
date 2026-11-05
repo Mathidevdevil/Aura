@@ -62,7 +62,7 @@ export const HeroHeader: React.FC = () => {
         </div>
 
         {/* Fraunces h1: 60px (-0.035em), under 860px 42px. Hand-drawn wavy tomato SVG underline under Mathi */}
-        <h1 className="font-fraunces font-semibold text-[42px] md-custom:text-[60px] tracking-[-0.035em] text-[var(--ink)] leading-[1.08]">
+        <h1 className="font-fraunces font-semibold text-[28px] sm:text-[40px] md-custom:text-[60px] tracking-[-0.035em] text-[var(--ink)] leading-[1.1] break-words">
           {timeGreeting},{' '}
           <span className="relative inline-block">
             <span>{userName ? `${userName}.` : 'there.'}</span>
@@ -91,18 +91,18 @@ export const HeroHeader: React.FC = () => {
       </div>
 
       {/* 4. Stats row: 4 cards in a grid (under 1060px: 2 columns) */}
-      <div className="grid grid-cols-2 lg-custom:grid-cols-4 gap-3.5 sm:gap-5">
+      <div className="grid grid-cols-2 lg-custom:grid-cols-4 gap-2.5 sm:gap-5">
         
         {/* Card 1: Today */}
         <div 
           onClick={() => setActiveTab('timeline')}
-          className="planner-card p-3.5 sm:p-5 cursor-pointer flex flex-col justify-between"
+          className="planner-card p-3 sm:p-5 cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-[11px] sm:text-[12.5px] uppercase tracking-[0.08em] text-[var(--muted)] font-semibold block truncate">
               Today's progress
             </span>
-            <div className="font-fraunces font-semibold text-[36px] sm:text-[52px] text-[var(--ink)] tabular-nums leading-none my-2 sm:my-3">
+            <div className="font-fraunces font-semibold text-[26px] sm:text-[36px] md-custom:text-[52px] text-[var(--ink)] tabular-nums leading-none my-1.5 sm:my-3">
               {dailyPercentage}%
             </div>
           </div>
@@ -122,13 +122,13 @@ export const HeroHeader: React.FC = () => {
         {/* Card 2: Active Goals */}
         <div 
           onClick={() => setActiveTab('goals')}
-          className="planner-card p-3.5 sm:p-5 cursor-pointer flex flex-col justify-between"
+          className="planner-card p-3 sm:p-5 cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-[11px] sm:text-[12.5px] uppercase tracking-[0.08em] text-[var(--muted)] font-semibold block truncate">
               Active goals
             </span>
-            <div className="font-fraunces font-semibold text-[36px] sm:text-[52px] text-[var(--ink)] tabular-nums leading-none my-2 sm:my-3">
+            <div className="font-fraunces font-semibold text-[26px] sm:text-[36px] md-custom:text-[52px] text-[var(--ink)] tabular-nums leading-none my-1.5 sm:my-3">
               {activeGoals.length}
             </div>
           </div>
@@ -148,13 +148,13 @@ export const HeroHeader: React.FC = () => {
         {/* Card 3: Milestones */}
         <div 
           onClick={() => setActiveTab('goals')}
-          className="planner-card p-3.5 sm:p-5 cursor-pointer flex flex-col justify-between"
+          className="planner-card p-3 sm:p-5 cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-[11px] sm:text-[12.5px] uppercase tracking-[0.08em] text-[var(--muted)] font-semibold block truncate">
               Milestones
             </span>
-            <div className="font-fraunces font-semibold text-[36px] sm:text-[52px] text-[var(--ink)] tabular-nums leading-none my-2 sm:my-3">
+            <div className="font-fraunces font-semibold text-[26px] sm:text-[36px] md-custom:text-[52px] text-[var(--ink)] tabular-nums leading-none my-1.5 sm:my-3">
               {completedMilestones}
             </div>
           </div>
@@ -174,13 +174,13 @@ export const HeroHeader: React.FC = () => {
         {/* Card 4: Consistency */}
         <div 
           onClick={() => setActiveTab('analytics')}
-          className="planner-card p-3.5 sm:p-5 cursor-pointer flex flex-col justify-between"
+          className="planner-card p-3 sm:p-5 cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-[11px] sm:text-[12.5px] uppercase tracking-[0.08em] text-[var(--muted)] font-semibold block truncate">
               Consistency
             </span>
-            <div className="font-fraunces font-semibold text-[36px] sm:text-[52px] text-[var(--ink)] tabular-nums leading-none my-2 sm:my-3">
+            <div className="font-fraunces font-semibold text-[26px] sm:text-[36px] md-custom:text-[52px] text-[var(--ink)] tabular-nums leading-none my-1.5 sm:my-3">
               {consistencyMetrics.score}
             </div>
           </div>

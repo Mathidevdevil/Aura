@@ -217,7 +217,7 @@ export const LoginPage: React.FC = () => {
               setIsLoading(false);
             }
           }}
-          className="planner-btn btn-secondary w-full py-2.5 text-xs text-[var(--tomato-ink)] font-bold flex items-center justify-center gap-2 border-dashed border-2 border-[var(--tomato)] hover:bg-[var(--tomato)]/10"
+          className="planner-btn btn-secondary w-full py-2.5 text-[11px] sm:text-xs text-[var(--tomato-ink)] font-bold flex items-center justify-center gap-1.5 sm:gap-2 border-dashed border-2 border-[var(--tomato)] hover:bg-[var(--tomato)]/10 px-2 text-center"
         >
           <span>⚡ One-Click Sign In (Demo User: Mathi)</span>
         </button>

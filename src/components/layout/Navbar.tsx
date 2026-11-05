@@ -54,45 +54,45 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileMenu }) => {
     : 'U';
 
   return (
-    <header className="w-full flex items-center justify-between gap-4 py-4 px-4 md-custom:px-10 border-b border-[var(--rule)] md-custom:border-b-0">
+    <header className="w-full flex items-center justify-between gap-2 sm:gap-4 py-3 px-3 sm:px-6 md-custom:px-10 border-b border-[var(--rule)] md-custom:border-b-0">
       
       {/* Mobile-only menu toggle & wordmark (< 860px) */}
-      <div className="flex items-center gap-3 md-custom:hidden">
+      <div className="flex items-center gap-2 sm:gap-3 md-custom:hidden">
         {onOpenMobileMenu && (
           <button
             onClick={onOpenMobileMenu}
-            className="planner-btn btn-icon w-9 h-9"
+            className="planner-btn btn-icon w-8 h-8 sm:w-9 sm:h-9"
             aria-label="Open navigation menu"
           >
             <Menu className="w-4 h-4" />
           </button>
         )}
-        <div className="flex items-center gap-1.5 font-fraunces italic font-semibold text-2xl text-[var(--ink)]">
+        <div className="flex items-center gap-1 font-fraunces italic font-semibold text-xl sm:text-2xl text-[var(--ink)]">
           <span>Aura</span>
-          <span className="text-[var(--tomato)] text-lg not-italic font-bold leading-none">✱</span>
+          <span className="text-[var(--tomato)] text-base sm:text-lg not-italic font-bold leading-none">✱</span>
         </div>
       </div>
 
       {/* Right-aligned Top Tools Row */}
-      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+      <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
         
         {/* Real Notification Bell (ONLY shown if unread count > 0) */}
         {unreadRemindersCount > 0 && (
           <button
             onClick={() => setRemindersOpen(true)}
-            className="planner-btn btn-icon w-10 h-10 relative"
+            className="planner-btn btn-icon w-8 h-8 sm:w-10 sm:h-10 relative"
             title={`${unreadRemindersCount} unread notifications`}
             aria-label={`${unreadRemindersCount} unread notifications`}
           >
             <Bell className="w-4 h-4 text-[var(--tomato)]" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--tomato)]" />
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--tomato)]" />
           </button>
         )}
 
         {/* Theme Toggle (Square Icon Button) */}
         <button
           onClick={toggleTheme}
-          className="planner-btn btn-icon w-10 h-10"
+          className="planner-btn btn-icon w-8 h-8 sm:w-10 sm:h-10"
           title={theme === 'dark' ? 'Switch to daylight paper' : 'Switch to night paper'}
           aria-label={theme === 'dark' ? 'Switch to daylight paper' : 'Switch to night paper'}
         >
@@ -106,26 +106,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileMenu }) => {
         {/* "Add goal" (Secondary Button) */}
         <button
           onClick={() => openGoalModal()}
-          className="planner-btn btn-secondary hidden sm:inline-flex"
+          className="planner-btn btn-secondary hidden sm:inline-flex text-xs py-2 px-3"
         >
           Add goal
         </button>
 
-        {/* "Add process" (Primary Button) */}
+        {/* "Add process" (Primary Button: Icon-only on mobile, full on tablet/desktop) */}
         <button
           onClick={() => openProcessModal()}
-          className="planner-btn btn-primary"
+          className="planner-btn btn-primary px-2.5 sm:px-4 py-2 text-xs"
+          title="Add process"
+          aria-label="Add process"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add process</span>
+          <span className="hidden sm:inline">Add process</span>
         </button>
 
         {/* Account Menu Dropdown */}
         {user && (
-          <div className="relative ml-1" ref={dropdownRef}>
+          <div className="relative ml-0.5 sm:ml-1" ref={dropdownRef}>
             <button
               onClick={() => setIsAccountOpen(!isAccountOpen)}
-              className="w-10 h-10 rounded-full border-2 border-[var(--ink)] bg-[var(--card)] text-[var(--ink)] font-bold text-xs flex items-center justify-center hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all shadow-[2px_2px_0_var(--ink)]"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-[var(--ink)] bg-[var(--card)] text-[var(--ink)] font-bold text-xs flex items-center justify-center hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all shadow-[2px_2px_0_var(--ink)]"
               aria-label="Account menu"
               aria-expanded={isAccountOpen}
             >

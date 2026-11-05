@@ -69,7 +69,7 @@ export const TodayTimelinePreview: React.FC = () => {
             return (
               <li
                 key={proc.id}
-                className="py-3.5 first:pt-4 last:pb-1 flex items-center justify-between gap-4 group"
+                className="py-3.5 first:pt-4 last:pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 group"
               >
                 {/* Left: 24px square checkbox (2px ink border, 6px radius) + Task Title */}
                 <div className="flex items-center gap-3.5 min-w-0">
@@ -117,7 +117,7 @@ export const TodayTimelinePreview: React.FC = () => {
                 </div>
 
                 {/* Right: Goal name as a small pill tag (1.5px ink border, fully rounded) */}
-                <div className="shrink-0 flex items-center">
+                <div className="shrink-0 flex items-center pl-9 sm:pl-0">
                   {linkedGoal ? (
                     <button
                       onClick={() => openGoalDetail(linkedGoal.id)}

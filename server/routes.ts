@@ -247,12 +247,27 @@ authRouter.get('/me', requireAuth, async (req, res) => {
   res.json({ user });
 });
 
+// Helper to resolve Google OAuth redirect URI dynamically
+function resolveGoogleRedirectUri(req: Request): string {
+  const forwardedHost = (req.headers['x-forwarded-host'] as string) || req.get('host') || 'localhost:3000';
+  const forwardedProto = (req.headers['x-forwarded-proto'] as string) || (forwardedHost.includes('localhost') ? 'http' : 'https');
+
+  if (forwardedHost.includes('vercel.app')) {
+    return `https://${forwardedHost}/api/v1/auth/oauth/google/callback`;
+  }
+  if (forwardedHost.includes('render.com')) {
+    return `https://${forwardedHost}/api/v1/auth/oauth/google/callback`;
+  }
+  if (process.env.GOOGLE_REDIRECT_URI) {
+    return process.env.GOOGLE_REDIRECT_URI;
+  }
+  return `${forwardedProto}://${forwardedHost}/api/v1/auth/oauth/google/callback`;
+}
+
 // 10. GOOGLE OAUTH2 (Supports Real Google Cloud Credentials + Local Fallback)
 authRouter.get('/oauth/google', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const forwardedHost = (req.headers['x-forwarded-host'] as string) || req.get('host');
-  const forwardedProto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${forwardedProto}://${forwardedHost}/api/v1/auth/oauth/google/callback`;
+  const redirectUri = resolveGoogleRedirectUri(req);
 
   if (clientId) {
     // Real Google OAuth2 flow
@@ -282,8 +297,7 @@ authRouter.get('/oauth/google/callback', async (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const forwardedHost = (req.headers['x-forwarded-host'] as string) || req.get('host');
-  const forwardedProto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${forwardedProto}://${forwardedHost}/api/v1/auth/oauth/google/callback`;
+  const redirectUri = resolveGoogleRedirectUri(req);
 
   try {
     let email = 'google.user@example.com';
@@ -305,6 +319,8 @@ authRouter.get('/oauth/google/callback', async (req, res) => {
       });
 
       if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error('[AURA GOOGLE TOKEN EXCHANGE ERROR]', errorText);
         throw new Error('Failed to exchange authorization code with Google');
       }
 

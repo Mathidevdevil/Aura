@@ -90,7 +90,7 @@ const MainLayout: React.FC = () => {
         <Navbar onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
 
         {/* Viewport content area */}
-        <main className="flex-1 p-4 md-custom:p-10 max-w-[1240px] w-full min-w-0">
+        <main className="flex-1 p-3 sm:p-6 md-custom:p-10 max-w-[1240px] w-full min-w-0 overflow-x-hidden">
           {renderActiveView()}
         </main>
       </div>

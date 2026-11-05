@@ -154,10 +154,10 @@ export const AccountSettingsPage: React.FC = () => {
       
       {/* Page Header */}
       <div className="pb-4 border-b-2 border-[var(--ink)]">
-        <h1 className="font-fraunces font-semibold text-[36px] text-[var(--ink)] leading-tight">
+        <h1 className="font-fraunces font-semibold text-[26px] sm:text-[36px] text-[var(--ink)] leading-tight">
           {authCopy.account.title}
         </h1>
-        <p className="text-sm text-[var(--muted)] mt-1">
+        <p className="text-xs sm:text-sm text-[var(--muted)] mt-1">
           {authCopy.account.subtitle}
         </p>
       </div>
@@ -179,7 +179,7 @@ export const AccountSettingsPage: React.FC = () => {
       )}
 
       {/* 1. Profile Section */}
-      <section className="planner-card p-6 sm:p-7 space-y-4">
+      <section className="planner-card p-4 sm:p-7 space-y-4">
         <div className="flex items-center gap-2 pb-3 border-b border-[var(--rule)]">
           <ShieldCheck className="w-5 h-5 text-[var(--tomato)]" />
           <h2 className="font-fraunces font-semibold text-xl text-[var(--ink)]">
@@ -219,7 +219,7 @@ export const AccountSettingsPage: React.FC = () => {
       </section>
 
       {/* 2. Security / Password Section */}
-      <section className="planner-card p-6 sm:p-7 space-y-4">
+      <section className="planner-card p-4 sm:p-7 space-y-4">
         <div className="flex items-center gap-2 pb-3 border-b border-[var(--rule)]">
           <KeyRound className="w-5 h-5 text-[var(--blue)]" />
           <h2 className="font-fraunces font-semibold text-xl text-[var(--ink)]">
@@ -266,7 +266,7 @@ export const AccountSettingsPage: React.FC = () => {
       </section>
 
       {/* 3. Active Sessions Section */}
-      <section className="planner-card p-6 sm:p-7 space-y-4">
+      <section className="planner-card p-4 sm:p-7 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-[var(--rule)]">
           <div className="flex items-center gap-2">
             <Laptop className="w-5 h-5 text-[var(--green)]" />
@@ -329,7 +329,7 @@ export const AccountSettingsPage: React.FC = () => {
       </section>
 
       {/* 4. Danger Zone: Delete Account */}
-      <section className="planner-card p-6 sm:p-7 border-2 border-[var(--tomato)] space-y-4">
+      <section className="planner-card p-4 sm:p-7 border-2 border-[var(--tomato)] space-y-4">
         <div className="flex items-center gap-2 pb-3 border-b border-[var(--rule)] text-[var(--tomato-ink)]">
           <AlertTriangle className="w-5 h-5 stroke-[2.5]" />
           <h2 className="font-fraunces font-semibold text-xl">
